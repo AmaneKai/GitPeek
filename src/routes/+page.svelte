@@ -1,2 +1,107 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+  import { useSearch }        from "$lib/features/search/useSearch.svelte"
+  import SearchBar            from "$lib/features/search/SearchBar.svelte"
+  import EmptyState           from "$lib/features/search/EmptyState.svelte"
+  import ProfileCard          from "$lib/features/profile/ProfileCard.svelte"
+  import StatGrid             from "$lib/features/stats/StatGrid.svelte"
+  import LanguagePie          from "$lib/features/charts/LanguagePie.svelte"
+  import MostStarredRepo      from "$lib/features/repos/MostStarredRepo.svelte"
+  import DashboardSkeleton    from "$lib/features/skeleton/DashboardSkeleton.svelte"
+
+  const search = useSearch()
+</script>
+
+<div class="aurora-bg" aria-hidden="true"></div>
+
+<main class="
+  min-h-screen flex flex-col items-center
+  px-4 sm:px-6 py-12 sm:py-16 md:py-20
+  gap-8 sm:gap-10 md:gap-12
+  touch-pan-y
+">
+  <!-- Hero -->
+  <header class="flex flex-col items-center gap-2 sm:gap-3 fade-in-up text-center px-2">
+    <span class="
+      text-[10px] sm:text-xs font-mono tracking-[0.2em] 
+      sm:tracking-[0.25em] uppercase text-muted"
+    >
+      github stats
+    </span>
+    <h1 class="text-4xl sm:text-5xl md:text-7xl tracking-tight leading-none font-serif">
+      <span class="gradient-text">GitPeek</span>
+    </h1>
+    <p class="text-xs sm:text-sm font-mono mt-1 tracking-wide text-subtle">
+      peek at any github profile — beautifully
+    </p>
+  </header>
+
+  <!-- Search -->
+  <div class="fade-in-up w-full flex justify-center px-2" style="animation-delay:80ms">
+    <SearchBar onSearch={search.onSearch} />
+  </div>
+
+  {#if search.loading}
+    <DashboardSkeleton />
+  {/if}
+
+  {#if search.stats}
+    <div class="dashboard">
+      <div class="col fade-in-up">
+        <ProfileCard stats={search.stats} login={search.currentUsername} />
+        <StatGrid stats={search.stats} />
+      </div>
+      <div class="col fade-in-up" style="animation-delay:80ms">
+        {#if search.stats.languages?.length}
+          <LanguagePie
+            languages={search.stats.languages}
+            avatarUrl={search.stats.avatarUrl}
+          />
+        {/if}
+        {#if search.stats.mostStarredRepo}
+          <MostStarredRepo repo={search.stats.mostStarredRepo} />
+        {/if}
+      </div>
+    </div>
+  {/if}
+
+  {#if search.noResults}
+    <EmptyState username={search.currentUsername} />
+  {/if}
+
+  <!-- Footer -->
+  <footer class="mt-auto pt-4 sm:pt-6 text-[10px] 
+    sm:text-xs font-mono tracking-wide opacity-40 text-muted">
+    built with rose pine & shadcn-svelte
+  </footer>
+</main>
+
+<style>
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  @media (min-width: 860px) {
+    .dashboard {
+      grid-template-columns: 1.05fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    touch-action: pan-y;
+  }
+
+  @media (max-width: 640px) {
+    .dashboard { gap: 12px; }
+    .col       { gap: 12px; }
+  }
+</style>
