@@ -16,7 +16,7 @@
 
   <!-- Header -->
   <div class="flex items-center gap-2 mb-4">
-    <span class="text-[10px] font-mono uppercase tracking-widest text-muted">
+    <span class="text-[10px] font-mono uppercase tracking-widest text-subtle">
       Languages
     </span>
     <div class="flex-1 h-px bg-subtle/10"></div>
@@ -138,7 +138,7 @@
             box-shadow:{active ? `0 0 9px ${slice.color}38` : 'none'};
           ">
             {#if url}
-              <img src={url} alt={slice.name} onerror={hideImgOnError}/>
+              <img src={url} alt={slice.name} width="13" height="13" onerror={hideImgOnError}/>
               <span style="display:none;width:7px;height:7px;
                 border-radius:50%;background:{slice.color};"></span>
             {:else}
@@ -155,12 +155,14 @@
           ">{slice.name}</span>
 
           <div class="shrink-0 rounded-full overflow-hidden bg-subtle/10"
-               style="width:60px;height:3px;">
+            style="width:60px; height:3px;">
             <div class="bar-grow h-full rounded-full" style="
-              width:{slice.percentage}%;background:{slice.color};
-              opacity:{active ? 1 : 0.55};animation-delay:{i * 55}ms;
+              width:{slice.percentage}%;
+                background:{slice.color};
+              opacity:{active ? 1 : 0.55};
+              animation-delay:{i * 55}ms;
               box-shadow:{active ? `0 0 7px ${slice.color}bb` : 'none'};
-            "></div>
+              "></div>
           </div>
 
           <span class="shrink-0 text-right" style="
