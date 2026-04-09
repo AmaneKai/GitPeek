@@ -50,7 +50,7 @@
     enterkeyhint="search"
     class="
       flex-1 bg-transparent border-none outline-none shadow-none
-      text-sm py-3 px-2 font-mono tracking-wide
+      text-base sm:text-base py-3 px-2 font-mono tracking-wide
       text-rp-text caret-iris placeholder:opacity-30
       focus-visible:ring-0 focus-visible:ring-offset-0
       touch-manipulation
@@ -63,7 +63,7 @@
     variant="ghost"
     class="
       shrink-0 m-0.5 px-5 py-2.5 min-h-[44px]
-      rounded-xl text-xs font-mono tracking-widest uppercase font-medium
+      rounded-xl text-base font-mono tracking-wide uppercase font-medium
       text-iris border border-iris/25
       bg-gradient-to-br from-iris/20 to-foam/15
       hover:from-iris/30 hover:to-foam/22 hover:border-iris/45 hover:text-iris
