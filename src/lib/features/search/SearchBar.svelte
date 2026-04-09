@@ -48,10 +48,11 @@
     autocorrect="off"
     autocapitalize="off"
     enterkeyhint="search"
+    style="color: #e0def4;"
     class="
       flex-1 bg-transparent border-none outline-none shadow-none
       text-base sm:text-base py-3 px-2 font-mono tracking-wide
-      text-rp-text caret-iris placeholder:opacity-30
+      caret-iris placeholder:opacity-30
       focus-visible:ring-0 focus-visible:ring-offset-0
       touch-manipulation
     "
