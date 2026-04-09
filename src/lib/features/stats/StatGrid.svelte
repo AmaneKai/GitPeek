@@ -1,0 +1,113 @@
+<script lang="ts">
+  import type { GithubStats } from "$lib/utils/types"
+  import { formatNumber } from "$lib/utils/format"
+  import { tiltStyle, shineStyle } from "$lib/utils/tilt"
+  import { useStatGrid, heroItems, detailItems } from "./useStatGrid.svelte"
+  import * as Card from "$lib/components/ui/card"
+
+  let { stats }: { stats: GithubStats } = $props()
+
+  const grid = useStatGrid()
+</script>
+
+<div class="flex flex-col gap-3">
+
+  <!-- Hero cards (2-col) -->
+  <div class="grid grid-cols-2 gap-3">
+    {#each heroItems(stats) as item, i}
+      {@const Icon  = item.icon as any}
+      {@const t     = grid.tilts[i]}
+      <Card.Root
+        role="presentation"
+        class="tilt-card glass relative overflow-hidden rounded-2xl
+               cursor-default select-none border-0 shadow-none bg-transparent"
+        style="{tiltStyle(t)}; animation-delay: {i * 50}ms"
+        onmousemove={(e: any) => grid.onMove(e, i)}
+        onmouseleave={(e: any) => grid.onLeave(e, i)}
+      >
+        <!-- Static accent glow -->
+        <div class="tilt-shine"
+          style="background:radial-gradient(ellipse at 100% 0%,
+            {item.accent}18 0%, transparent 60%);"></div>
+        <!-- Cursor shine -->
+        <div class="tilt-shine" style={shineStyle(t)}></div>
+
+        <Card.Content class="relative z-10 flex flex-col gap-4 p-[18px_20px]">
+          <!-- Label + icon -->
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-muted">
+              {item.label}
+            </span>
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center"
+              style="background:{item.accent}1a; color:{item.accent};">
+              <Icon size={13} />
+            </span>
+          </div>
+
+          <!-- Value -->
+          <span class="leading-none tracking-tight font-serif font-bold text-rp-text"
+            style="font-size:2.6rem;">
+            {formatNumber(item.value)}
+          </span>
+
+          <!-- Accent bar -->
+          <div class="h-0.5 rounded-full transition-all duration-200" style="
+            width:{t.active ? '48px' : '28px'};
+            background:{item.accent};
+            opacity:{t.active ? 0.8 : 0.5};
+            box-shadow:{t.active ? `0 0 8px ${item.accent}` : 'none'};
+          "></div>
+        </Card.Content>
+      </Card.Root>
+    {/each}
+  </div>
+
+  <!-- Detail cards (3-col) -->
+  <div class="grid grid-cols-3 gap-2.5">
+    {#each detailItems(stats) as item, i}
+      {@const Icon  = item.icon as any}
+      {@const idx   = i + 2}
+      {@const t     = grid.tilts[idx]}
+      <Card.Root
+        role="presentation"
+        class="tilt-card glass relative overflow-hidden rounded-[14px]
+               cursor-default select-none border-0 shadow-none bg-transparent"
+        style="{tiltStyle(t)}; animation-delay: {idx * 50}ms"
+        onmousemove={(e: any) => grid.onMove(e, idx)}
+        onmouseleave={(e: any) => grid.onLeave(e, idx)}
+      >
+        <div class="tilt-shine" style="background:radial-gradient(ellipse at 100% 0%,
+          {item.accent}12 0%, transparent 60%);"></div>
+        <div class="tilt-shine" style={shineStyle(t)}></div>
+
+        <Card.Content class="relative z-10 flex flex-col gap-2 p-[12px_14px]">
+          <!-- Label + icon -->
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-[9px] font-mono uppercase tracking-widest truncate text-muted">
+              {item.label}
+            </span>
+            <span class="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
+              style="background:{item.accent}18; color:{item.accent};">
+              <Icon size={10} />
+            </span>
+          </div>
+
+          <!-- Value -->
+          <span class="leading-none tracking-tight font-serif font-bold text-rp-text"
+            style="font-size:1.6rem;">
+            {formatNumber(item.value)}
+          </span>
+
+          <!-- Accent bar -->
+          <div class="h-px rounded-full" style="
+            width:{t.active ? '36px' : '20px'};
+            background:{item.accent};
+            opacity:{t.active ? 0.7 : 0.4};
+            transition:width 0.2s ease, opacity 0.2s ease;
+          "></div>
+        </Card.Content>
+      </Card.Root>
+    {/each}
+  </div>
+
+</div>
