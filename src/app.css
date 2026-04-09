@@ -56,6 +56,11 @@ body {
   font-family: 'JetBrains Mono', monospace;
   background: var(--base);
   color: var(--text);
+  overflow-x: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ── Aurora background ───────────────────────────────────────────────────── */

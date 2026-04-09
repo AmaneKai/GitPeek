@@ -23,6 +23,7 @@
     relative flex items-center w-full max-w-lg
     rounded-2xl p-1 glass
     transition-all duration-300 touch-manipulation
+    max-w-[calc(100vw-24px)]
   "
   class:focused
 >
