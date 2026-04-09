@@ -8,6 +8,15 @@
   let { stats }: { stats: GithubStats } = $props()
 
   const grid = useStatGrid()
+
+  // Disable tilt events on touch devices — fixes the forced reflow
+  // that was blocking LCP on mobile
+  let isTouch = $state(false)
+  $effect(() => {
+    if (typeof window !== "undefined") {
+      isTouch = window.matchMedia("(pointer: coarse)").matches
+    }
+  })
 </script>
 
 <div class="flex flex-col gap-3">
@@ -22,35 +31,33 @@
         class="tilt-card glass relative overflow-hidden rounded-2xl
                cursor-default select-none border-0 shadow-none bg-transparent"
         style="{tiltStyle(t)}; animation-delay: {i * 50}ms"
-        onmousemove={(e: any) => grid.onMove(e, i)}
-        onmouseleave={(e: any) => grid.onLeave(e, i)}
+        onmousemove={!isTouch ? (e: any) => grid.onMove(e, i) : undefined}
+        onmouseleave={!isTouch ? (e: any) => grid.onLeave(e, i) : undefined}
       >
-        <!-- Static accent glow -->
         <div class="tilt-shine"
           style="background:radial-gradient(ellipse at 100% 0%,
             {item.accent}18 0%, transparent 60%);"></div>
-        <!-- Cursor shine -->
-        <div class="tilt-shine" style={shineStyle(t)}></div>
+        {#if !isTouch}
+          <div class="tilt-shine" style={shineStyle(t)}></div>
+        {/if}
 
-        <Card.Content class="relative z-10 flex flex-col gap-4 p-[18px_20px]">
-          <!-- Label + icon -->
+        <Card.Content class="relative z-10 flex flex-col gap-3 sm:gap-4 p-[14px_16px] sm:p-[18px_20px]">
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-mono uppercase tracking-widest text-muted">
+            <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-subtle">
               {item.label}
             </span>
-            <span class="w-7 h-7 rounded-lg flex items-center justify-center"
+            <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center"
               style="background:{item.accent}1a; color:{item.accent};">
-              <Icon size={13} />
+              <Icon size={12} />
             </span>
           </div>
 
-          <!-- Value -->
-          <span class="leading-none tracking-tight font-serif font-bold text-rp-text"
-            style="font-size:2.6rem;">
+          <!-- clamp() scales the value nicely on small screens -->
+          <span class="leading-none tracking-tight font-serif font-bold text-[var(--text)"
+            style="font-size: clamp(1.8rem, 5vw, 2.6rem);">
             {formatNumber(item.value)}
           </span>
 
-          <!-- Accent bar -->
           <div class="h-0.5 rounded-full transition-all duration-200" style="
             width:{t.active ? '48px' : '28px'};
             background:{item.accent};
@@ -63,7 +70,7 @@
   </div>
 
   <!-- Detail cards (3-col) -->
-  <div class="grid grid-cols-3 gap-2.5">
+  <div class="grid grid-cols-3 gap-2 sm:gap-2.5">
     {#each detailItems(stats) as item, i}
       {@const Icon  = item.icon as any}
       {@const idx   = i + 2}
@@ -73,32 +80,31 @@
         class="tilt-card glass relative overflow-hidden rounded-[14px]
                cursor-default select-none border-0 shadow-none bg-transparent"
         style="{tiltStyle(t)}; animation-delay: {idx * 50}ms"
-        onmousemove={(e: any) => grid.onMove(e, idx)}
-        onmouseleave={(e: any) => grid.onLeave(e, idx)}
+        onmousemove={!isTouch ? (e: any) => grid.onMove(e, idx) : undefined}
+        onmouseleave={!isTouch ? (e: any) => grid.onLeave(e, idx) : undefined}
       >
         <div class="tilt-shine" style="background:radial-gradient(ellipse at 100% 0%,
           {item.accent}12 0%, transparent 60%);"></div>
-        <div class="tilt-shine" style={shineStyle(t)}></div>
+        {#if !isTouch}
+          <div class="tilt-shine" style={shineStyle(t)}></div>
+        {/if}
 
-        <Card.Content class="relative z-10 flex flex-col gap-2 p-[12px_14px]">
-          <!-- Label + icon -->
+        <Card.Content class="relative z-10 flex flex-col gap-1.5 sm:gap-2 p-[10px_12px] sm:p-[12px_14px]">
           <div class="flex items-center justify-between gap-1">
-            <span class="text-[9px] font-mono uppercase tracking-widest truncate text-muted">
+            <span class="text-[8px] sm:text-[9px] font-mono uppercase tracking-widest truncate text-subtle">
               {item.label}
             </span>
-            <span class="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
+            <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center shrink-0"
               style="background:{item.accent}18; color:{item.accent};">
-              <Icon size={10} />
+              <Icon size={9} />
             </span>
           </div>
 
-          <!-- Value -->
           <span class="leading-none tracking-tight font-serif font-bold text-rp-text"
-            style="font-size:1.6rem;">
+            style="font-size: clamp(1.1rem, 4vw, 1.6rem);">
             {formatNumber(item.value)}
           </span>
 
-          <!-- Accent bar -->
           <div class="h-px rounded-full" style="
             width:{t.active ? '36px' : '20px'};
             background:{item.accent};
