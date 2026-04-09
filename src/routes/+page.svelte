@@ -15,15 +15,20 @@
 
 <main class="
   min-h-screen flex flex-col items-center
-  px-3 sm:px-6 py-10 sm:py-16 md:py-20
+  px-4 sm:px-6 py-10 sm:py-16 md:py-20
   gap-8 sm:gap-10 md:gap-12
   touch-pan-y w-full max-w-[100vw] overflow-x-hidden
 ">
   <!-- Hero -->
   <header class="flex flex-col items-center gap-2 sm:gap-3 fade-in-up text-center px-2">
+    <!--
+      Fix: contrast issue flagged by Lighthouse.
+      Bumped from text-muted (#6e6a86) to text-subtle (#908caa) for the eyebrow label.
+    -->
     <span class="
-      text-[10px] sm:text-xs font-mono tracking-[0.2em] 
-      sm:tracking-[0.25em] uppercase text-muted"
+      text-[11px] sm:text-xs font-mono tracking-[0.2em]
+      sm:tracking-[0.25em] uppercase text-subtle"
+      aria-label="GitHub Stats"
     >
       github stats
     </span>
