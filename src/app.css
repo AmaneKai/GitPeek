@@ -117,6 +117,7 @@ body {
 
 /* ── Gradient text ───────────────────────────────────────────────────────── */
 .gradient-text {
+  color: var(--iris); /* LCP fallback — visible before gradient applies */
   background: linear-gradient(135deg, var(--iris) 0%, var(--foam) 50%, var(--rose) 100%);
   -webkit-background-clip: text;
   background-clip: text;
