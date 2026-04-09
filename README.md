@@ -2,6 +2,10 @@
 
 A web application for viewing public GitHub profile statistics. Enter any GitHub username and get an instant overview of their activity, languages, repositories, and contribution history.
 
+Live at [gitpk.vercel.app](https://gitpk.vercel.app)
+
+---
+
 ## Features
 
 - Profile overview with avatar, bio, followers, and account age
@@ -10,14 +14,20 @@ A web application for viewing public GitHub profile statistics. Enter any GitHub
 - Most starred repository highlight
 - Responsive layout for desktop and mobile
 
+---
+
 ## Tech Stack
 
-- [SvelteKit](https://kit.svelte.dev/) — framework
-- [shadcn-svelte](https://www.shadcn-svelte.com/) — component primitives
-- [Tailwind CSS](https://tailwindcss.com/) — styling
-- [bits-ui](https://www.bits-ui.com/) — headless UI
-- [Lucide](https://lucide.dev/) — icons
-- Cloudflare Worker — backend API proxying GitHub's GraphQL endpoint
+| Layer | Technology |
+|---|---|
+| Framework | [SvelteKit](https://kit.svelte.dev/) |
+| Components | [shadcn-svelte](https://www.shadcn-svelte.com/) |
+| Headless UI | [bits-ui](https://www.bits-ui.com/) |
+| Styling | [Tailwind CSS](https://tailwindcss.com/) |
+| Icons | [Lucide](https://lucide.dev/) |
+| Backend | Cloudflare Worker proxying GitHub's GraphQL API |
+
+---
 
 ## Project Structure
 
@@ -37,6 +47,8 @@ src/
     +page.svelte       # main page
     +layout.svelte     # app shell
 ```
+
+---
 
 ## License
 
