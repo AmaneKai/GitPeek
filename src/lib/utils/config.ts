@@ -7,7 +7,7 @@ export interface AppConfig {
 }
 
 const DEFAULTS = {
-  API_URL:    "https://ghfetch.carlosranara.workers.dev",
+  API_URL: "https://ghfetch.carlosranara.workers.dev/v1/stats",
   TIMEOUT_MS: 10_000,
   MAX_TIMEOUT_MS: 30_000,
 } as const

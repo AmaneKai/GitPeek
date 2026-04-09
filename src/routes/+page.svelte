@@ -68,11 +68,6 @@
     <EmptyState username={search.currentUsername} />
   {/if}
 
-  <!-- Footer -->
-  <footer class="mt-auto pt-4 sm:pt-6 text-[10px] 
-    sm:text-xs font-mono tracking-wide opacity-40 text-muted">
-    built with rose pine & shadcn-svelte
-  </footer>
 </main>
 
 <style>

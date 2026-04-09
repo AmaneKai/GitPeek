@@ -7,7 +7,7 @@ type WorkerResponse =
   | { ok: false; error: string      }
 
 const buildUrl = (username: string): string =>
-  `${config.apiUrl}/?username=${encodeURIComponent(username.trim().toLowerCase())}&_t=${Date.now()}`
+  `${config.apiUrl}?username=${encodeURIComponent(username.trim().toLowerCase())}&_t=${Date.now()}`
 
 const fetchWithTimeout = (url: string, ms: number): Promise<Response> => {
   const ctrl  = new AbortController()
