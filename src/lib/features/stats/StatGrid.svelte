@@ -59,7 +59,9 @@
           </span>
 
           <div class="h-0.5 rounded-full transition-all duration-200" style="
-            width:{t.active ? '48px' : '28px'};
+            width:48px;
+            transform:scaleX({t.active ? 1 : 0.58});
+            transform-origin:left center;
             background:{item.accent};
             opacity:{t.active ? 0.8 : 0.5};
             box-shadow:{t.active ? `0 0 8px ${item.accent}` : 'none'};
@@ -106,7 +108,9 @@
           </span>
 
           <div class="h-px rounded-full" style="
-            width:{t.active ? '36px' : '20px'};
+            width:36px;
+            transform:scaleX({t.active ? 1 : 0.55});
+            transform-origin:left center;
             background:{item.accent};
             opacity:{t.active ? 0.7 : 0.4};
             transition:width 0.2s ease, opacity 0.2s ease;
