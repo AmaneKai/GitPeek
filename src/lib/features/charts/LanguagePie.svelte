@@ -78,7 +78,7 @@
         {/each}
 
         <!-- Inner circle + avatar -->
-        <circle cx={CX} cy={CY} r={R_INNER - 2} fill="#191724"/>
+        <circle cx={CX} cy={CY} r={R_INNER - 2} fill="var(--base)"/>
         <circle
           cx={CX} cy={CY} r={R_INNER - 2}
           fill="none" stroke-width="1.5"
@@ -101,7 +101,7 @@
         {#if pie.hovered !== null}
           {@const s = pie.slices[pie.hovered]}
           <circle cx={CX} cy={CY} r={R_INNER - 7}
-            fill="rgba(25,23,36,0.82)" style="pointer-events:none;"/>
+            fill="var(--base)" fill-opacity="0.82" style="pointer-events:none;"/>
           <text x={CX} y={CY - 8}
             text-anchor="middle" dominant-baseline="middle"
             font-size="9" font-family="DM Mono, monospace"
@@ -112,7 +112,7 @@
             text-anchor="middle" dominant-baseline="middle"
             font-size="19" font-weight="700"
             font-family="Instrument Serif, serif"
-            fill="#e0def4" style="pointer-events:none;"
+            fill="var(--text)" style="pointer-events:none;"
           >{s.percentage}%</text>
         {/if}
       </svg>
@@ -158,11 +158,11 @@
             style="width:60px; height:3px;">
             <div class="bar-grow h-full rounded-full" style="
               width:{slice.percentage}%;
-                background:{slice.color};
+              background:{slice.color};
               opacity:{active ? 1 : 0.55};
               animation-delay:{i * 55}ms;
               box-shadow:{active ? `0 0 7px ${slice.color}bb` : 'none'};
-              "></div>
+            "></div>
           </div>
 
           <span class="shrink-0 text-right" style="
