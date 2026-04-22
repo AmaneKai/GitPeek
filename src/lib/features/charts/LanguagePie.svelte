@@ -2,6 +2,9 @@
   import type { GitHubLanguage } from "$lib/utils/types"
   import { useLanguagePie, arcPath, segOffset } from "./useLanguagePie.svelte"
   import { langIconUrl, hideImgOnError } from "$lib/utils/icons"
+  import { Badge } from "$lib/components/ui/badge"
+  import { Card, CardContent, CardHeader } from "$lib/components/ui/card"
+  import { Separator } from "$lib/components/ui/separator"
 
   let { languages, avatarUrl }: {
     languages: GitHubLanguage[]
@@ -12,170 +15,168 @@
   const { SIZE, CX, CY, R_OUTER, R_INNER } = pie.dims
 </script>
 
-<div class="glass rounded-2xl p-4 sm:p-5">
+<Card class="glass rounded-2xl overflow-hidden">
+  <CardHeader class="p-4 sm:p-5 pb-0">
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--subtle)">
+        Languages
+      </span>
+      <Separator class="flex-1" style="background: color-mix(in srgb, var(--subtle) 10%, transparent)" />
+      <Badge
+        variant="outline"
+        class="text-[10px] font-mono px-2 py-0.5 rounded-full"
+        style="background:color-mix(in srgb, var(--iris) 9%, transparent);
+               border-color:color-mix(in srgb, var(--iris) 18%, transparent);
+               color:var(--iris);"
+      >
+        {languages.length} used
+      </Badge>
+    </div>
+  </CardHeader>
 
-  <!-- Header -->
-  <div class="flex items-center gap-2 mb-4">
-    <span class="text-[10px] font-mono uppercase tracking-widest text-subtle">
-      Languages
-    </span>
-    <div class="flex-1 h-px bg-subtle/10"></div>
-    <span class="
-      text-[10px] font-mono px-2 py-0.5 rounded-full
-      bg-iris/9 border border-iris/18 text-iris
-    ">
-      {languages.length} used
-    </span>
-  </div>
+  <CardContent class="p-4 sm:p-5 pt-4">
+    <div class="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
 
-  <!-- Chart + Legend -->
-  <div class="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
+      <!-- SVG donut -->
+      <div class="shrink-0" style="width:{SIZE}px; height:{SIZE}px;">
+        <svg width={SIZE} height={SIZE} viewBox="0 0 {SIZE} {SIZE}" style="overflow:visible;">
+          <defs>
+            <clipPath id="lp-av-clip">
+              <circle cx={CX} cy={CY} r={R_INNER - 5} />
+            </clipPath>
+            {#each pie.slices as slice, i}
+              <filter id="lp-glow-{i}" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+                <feFlood flood-color={slice.color} flood-opacity="0.5" result="clr"/>
+                <feComposite in="clr" in2="blur" operator="in" result="glow"/>
+                <feMerge>
+                  <feMergeNode in="glow"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            {/each}
+          </defs>
 
-    <!-- SVG donut -->
-    <div class="shrink-0" style="width:{SIZE}px; height:{SIZE}px;">
-      <svg width={SIZE} height={SIZE} viewBox="0 0 {SIZE} {SIZE}" style="overflow:visible;">
-        <defs>
-          <clipPath id="lp-av-clip">
-            <circle cx={CX} cy={CY} r={R_INNER - 5} />
-          </clipPath>
+          <circle
+            cx={CX} cy={CY}
+            r={(R_OUTER + R_INNER) / 2}
+            fill="none"
+            stroke="rgba(144,140,170,0.05)"
+            stroke-width={R_OUTER - R_INNER + 1}
+          />
+
           {#each pie.slices as slice, i}
-            <filter id="lp-glow-{i}" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-              <feFlood flood-color={slice.color} flood-opacity="0.5" result="clr"/>
-              <feComposite in="clr" in2="blur" operator="in" result="glow"/>
-              <feMerge>
-                <feMergeNode in="glow"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
+            {@const off = pie.hovered === i ? segOffset(slice) : { x: 0, y: 0 }}
+            <path
+              d={arcPath(CX, CY, R_OUTER, R_INNER, slice.startDeg, slice.endDeg, off.x, off.y)}
+              fill={slice.color}
+              class="arc-path"
+              class:dimmed={pie.hovered !== null && pie.hovered !== i}
+              style="filter:{pie.hovered === i ? `url(#lp-glow-${i})` : 'none'};"
+              onmouseenter={() => pie.onEnter(i)}
+              onmouseleave={pie.onLeave}
+              ontouchstart={() => pie.onEnter(i)}
+              ontouchend={pie.onLeave}
+              role="presentation"
+            />
           {/each}
-        </defs>
 
-        <!-- Track ring -->
-        <circle
-          cx={CX} cy={CY}
-          r={(R_OUTER + R_INNER) / 2}
-          fill="none"
-          stroke="rgba(144,140,170,0.05)"
-          stroke-width={R_OUTER - R_INNER + 1}
-        />
+          <circle cx={CX} cy={CY} r={R_INNER - 2} fill="var(--base)"/>
+          <circle
+            cx={CX} cy={CY} r={R_INNER - 2}
+            fill="none" stroke-width="1.5"
+            style="
+              stroke:{pie.hovered !== null
+                ? pie.slices[pie.hovered]?.color
+                : 'rgba(196,167,231,0.18)'};
+              transition:stroke 0.2s ease;
+            "
+          />
+          <image
+            href={avatarUrl}
+            x={CX - (R_INNER - 7)} y={CY - (R_INNER - 7)}
+            width={(R_INNER - 7) * 2} height={(R_INNER - 7) * 2}
+            clip-path="url(#lp-av-clip)"
+            preserveAspectRatio="xMidYMid slice"
+          />
 
-        <!-- Slices -->
+          {#if pie.hovered !== null}
+            {@const s = pie.slices[pie.hovered]}
+            <circle cx={CX} cy={CY} r={R_INNER - 7}
+              fill="var(--base)" fill-opacity="0.82" style="pointer-events:none;"/>
+            <text x={CX} y={CY - 8}
+              text-anchor="middle" dominant-baseline="middle"
+              font-size="9" font-family="DM Mono, monospace"
+              letter-spacing="0.08em" fill={s.color}
+              style="pointer-events:none;"
+            >{s.name}</text>
+            <text x={CX} y={CY + 11}
+              text-anchor="middle" dominant-baseline="middle"
+              font-size="19" font-weight="700"
+              font-family="Instrument Serif, serif"
+              fill="var(--text)" style="pointer-events:none;"
+            >{s.percentage}%</text>
+          {/if}
+        </svg>
+      </div>
+
+      <!-- Legend -->
+      <ul class="legend-list flex flex-col gap-0.5 w-full mt-1">
         {#each pie.slices as slice, i}
-          {@const off = pie.hovered === i ? segOffset(slice) : { x: 0, y: 0 }}
-          <path
-            d={arcPath(CX, CY, R_OUTER, R_INNER, slice.startDeg, slice.endDeg, off.x, off.y)}
-            fill={slice.color}
-            class="arc-path"
-            class:dimmed={pie.hovered !== null && pie.hovered !== i}
-            style="filter:{pie.hovered === i ? `url(#lp-glow-${i})` : 'none'};"
+          {@const url    = langIconUrl(slice.name)}
+          {@const active = pie.hovered === i}
+          <li
+            class="lang-row"
+            class:active
+            style="background:{active ? `${slice.color}12` : 'transparent'};"
             onmouseenter={() => pie.onEnter(i)}
             onmouseleave={pie.onLeave}
             ontouchstart={() => pie.onEnter(i)}
             ontouchend={pie.onLeave}
-            role="presentation"
-          />
-        {/each}
+          >
+            <span class="icon-badge" style="
+              background:{slice.color}1a;
+              border:1px solid {slice.color}{active ? '48' : '20'};
+              box-shadow:{active ? `0 0 9px ${slice.color}38` : 'none'};
+            ">
+              {#if url}
+                <img src={url} alt={slice.name} width="13" height="13" onerror={hideImgOnError}/>
+                <span style="display:none;width:7px;height:7px;border-radius:50%;background:{slice.color};"></span>
+              {:else}
+                <span style="width:7px;height:7px;border-radius:50%;background:{slice.color};"></span>
+              {/if}
+            </span>
 
-        <!-- Inner circle + avatar -->
-        <circle cx={CX} cy={CY} r={R_INNER - 2} fill="#191724"/>
-        <circle
-          cx={CX} cy={CY} r={R_INNER - 2}
-          fill="none" stroke-width="1.5"
-          style="
-            stroke:{pie.hovered !== null
-              ? pie.slices[pie.hovered]?.color
-              : 'rgba(196,167,231,0.18)'};
-            transition:stroke 0.2s ease;
-          "
-        />
-        <image
-          href={avatarUrl}
-          x={CX - (R_INNER - 7)} y={CY - (R_INNER - 7)}
-          width={(R_INNER - 7) * 2} height={(R_INNER - 7) * 2}
-          clip-path="url(#lp-av-clip)"
-          preserveAspectRatio="xMidYMid slice"
-        />
+            <span class="flex-1 truncate" style="
+              font-family:'DM Mono',monospace;font-size:11px;
+              letter-spacing:0.01em;transition:color 0.13s ease;
+              color:{active ? slice.color : 'var(--text)'};
+              font-weight:{active ? 500 : 400};
+            ">{slice.name}</span>
 
-        <!-- Hover tooltip -->
-        {#if pie.hovered !== null}
-          {@const s = pie.slices[pie.hovered]}
-          <circle cx={CX} cy={CY} r={R_INNER - 7}
-            fill="rgba(25,23,36,0.82)" style="pointer-events:none;"/>
-          <text x={CX} y={CY - 8}
-            text-anchor="middle" dominant-baseline="middle"
-            font-size="9" font-family="DM Mono, monospace"
-            letter-spacing="0.08em" fill={s.color}
-            style="pointer-events:none;"
-          >{s.name}</text>
-          <text x={CX} y={CY + 11}
-            text-anchor="middle" dominant-baseline="middle"
-            font-size="19" font-weight="700"
-            font-family="Instrument Serif, serif"
-            fill="#e0def4" style="pointer-events:none;"
-          >{s.percentage}%</text>
-        {/if}
-      </svg>
-    </div>
-
-    <!-- Legend -->
-    <ul class="legend-list flex flex-col gap-0.5 w-full mt-1">
-      {#each pie.slices as slice, i}
-        {@const url    = langIconUrl(slice.name)}
-        {@const active = pie.hovered === i}
-        <li
-          class="lang-row"
-          class:active
-          style="background:{active ? `${slice.color}12` : 'transparent'};"
-          onmouseenter={() => pie.onEnter(i)}
-          onmouseleave={pie.onLeave}
-          ontouchstart={() => pie.onEnter(i)}
-          ontouchend={pie.onLeave}
-        >
-          <span class="icon-badge" style="
-            background:{slice.color}1a;
-            border:1px solid {slice.color}{active ? '48' : '20'};
-            box-shadow:{active ? `0 0 9px ${slice.color}38` : 'none'};
-          ">
-            {#if url}
-              <img src={url} alt={slice.name} width="13" height="13" onerror={hideImgOnError}/>
-              <span style="display:none;width:7px;height:7px;
-                border-radius:50%;background:{slice.color};"></span>
-            {:else}
-              <span style="width:7px;height:7px;
-                border-radius:50%;background:{slice.color};"></span>
-            {/if}
-          </span>
-
-          <span class="flex-1 truncate" style="
-            font-family:'DM Mono',monospace;font-size:11px;
-            letter-spacing:0.01em;transition:color 0.13s ease;
-            color:{active ? slice.color : 'var(--text)'};
-            font-weight:{active ? 500 : 400};
-          ">{slice.name}</span>
-
-          <div class="shrink-0 rounded-full overflow-hidden bg-subtle/10"
-            style="width:60px; height:3px;">
-            <div class="bar-grow h-full rounded-full" style="
-              width:{slice.percentage}%;
+            <div class="shrink-0 rounded-full overflow-hidden"
+              style="width:60px; height:3px; background:color-mix(in srgb, var(--subtle) 10%, transparent);">
+              <div class="bar-grow h-full rounded-full" style="
+                width:{slice.percentage}%;
                 background:{slice.color};
-              opacity:{active ? 1 : 0.55};
-              animation-delay:{i * 55}ms;
-              box-shadow:{active ? `0 0 7px ${slice.color}bb` : 'none'};
+                opacity:{active ? 1 : 0.55};
+                animation-delay:{i * 55}ms;
+                box-shadow:{active ? `0 0 7px ${slice.color}bb` : 'none'};
               "></div>
-          </div>
+            </div>
 
-          <span class="shrink-0 text-right" style="
-            font-family:'DM Mono',monospace;font-size:10.5px;width:28px;
-            transition:color 0.13s ease;
-            color:{active ? slice.color : 'var(--muted)'};
-            font-weight:{active ? 600 : 400};
-          ">{slice.percentage}%</span>
-        </li>
-      {/each}
-    </ul>
-  </div>
-</div>
+            <span class="shrink-0 text-right" style="
+              font-family:'DM Mono',monospace;font-size:10.5px;width:28px;
+              transition:color 0.13s ease;
+              color:{active ? slice.color : 'var(--muted)'};
+              font-weight:{active ? 600 : 400};
+            ">{slice.percentage}%</span>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  </CardContent>
+</Card>
 
 <style>
   .arc-path {

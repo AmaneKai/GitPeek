@@ -48,6 +48,7 @@
 	},
 	"dependencies": {
 		"chart.js": "^4.5.1",
-		"lucide-svelte": "^1.0.1"
+		"lucide-svelte": "^1.0.1",
+		"vanilla-colorful": "^0.7.2"
 	}
 }

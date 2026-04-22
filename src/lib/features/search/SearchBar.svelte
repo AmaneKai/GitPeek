@@ -27,16 +27,14 @@
   "
   class:focused
 >
-  <!-- Search icon -->
   <div class="pl-4 pr-1 flex items-center shrink-0">
     <Search
       size={15}
       aria-hidden="true"
-      class="transition-colors duration-200 {focused ? 'text-iris' : 'text-muted'}"
+      style="color: {focused ? 'var(--iris)' : 'var(--muted)'}; transition: color 0.2s;"
     />
   </div>
 
-  <!-- Input -->
   <Input
     bind:value={username}
     onkeydown={handleKeydown}
@@ -48,7 +46,7 @@
     autocorrect="off"
     autocapitalize="off"
     enterkeyhint="search"
-    style="color: #e0def4;"
+    style="color: var(--text);"
     class="
       flex-1 bg-transparent border-none outline-none shadow-none
       text-base sm:text-base py-3 px-2 font-mono tracking-wide
@@ -58,17 +56,15 @@
     "
   />
 
-  <!-- Submit button -->
   <Button
     onclick={handleSearch}
     variant="ghost"
+    style="color: var(--iris); border-color: color-mix(in srgb, var(--iris) 25%, transparent);
+           background: linear-gradient(to bottom right, color-mix(in srgb, var(--iris) 20%, transparent), color-mix(in srgb, var(--foam) 15%, transparent));"
     class="
       shrink-0 m-0.5 px-5 py-2.5 min-h-[44px]
       rounded-xl text-base font-mono tracking-wide uppercase font-medium
-      text-iris border border-iris/25
-      bg-gradient-to-br from-iris/20 to-foam/15
-      hover:from-iris/30 hover:to-foam/22 hover:border-iris/45 hover:text-iris
-      active:scale-95 select-none
+      active:scale-95 select-none border
       transition-all duration-200 touch-manipulation
     "
   >
@@ -78,9 +74,9 @@
 
 <style>
   .focused {
-    border-color: rgba(144, 140, 170, 0.4) !important;
+    border-color: color-mix(in srgb, var(--subtle) 40%, transparent) !important;
     box-shadow:
-      0 0 0 4px rgba(196, 167, 231, 0.08),
+      0 0 0 4px color-mix(in srgb, var(--iris) 8%, transparent),
       0 24px 48px -12px rgba(0, 0, 0, 0.5);
   }
 </style>

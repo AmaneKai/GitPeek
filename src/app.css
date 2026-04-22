@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-/* ── Tailwind v4 design tokens ───────────────────────────────────────────────
-   Prefix with --color-* so Tailwind generates bg-*, text-*, border-* utilities.
-   Usage: text-iris, bg-foam/20, border-highlight-med, etc.
-   ─────────────────────────────────────────────────────────────────────────── */
 @theme {
   --color-base:           #191724;
   --color-surface:        #1f1d2e;
@@ -13,7 +9,7 @@
   --color-rp-text:        #e0def4;
   --color-love:           #eb6f92;
   --color-gold:           #f6c177;
-  --color-rose-lang:      #ebbcba;  /* "rose-lang" avoids collision with Tailwind's rose */
+  --color-rose-lang:      #ebbcba;
   --color-pine:           #31748f;
   --color-foam:           #9ccfd8;
   --color-iris:           #c4a7e7;
@@ -25,10 +21,6 @@
   --font-family-serif: 'Instrument Serif', serif;
 }
 
-/* ── Runtime CSS vars ────────────────────────────────────────────────────────
-   Kept alongside @theme so that dynamic inline styles in components
-   (e.g. `style="color: {accent}"` or `var(--muted)`) still resolve.
-   ─────────────────────────────────────────────────────────────────────────── */
 :root {
   --base:           var(--color-base);
   --surface:        var(--color-surface);
@@ -86,14 +78,14 @@ body {
 .aurora-bg::before {
   width: 70vw; height: 70vw;
   top: -20%; left: -10%;
-  background: radial-gradient(circle, rgba(196,167,231,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--iris) 12%, transparent) 0%, transparent 70%);
   animation-duration: 20s;
 }
 
 .aurora-bg::after {
   width: 60vw; height: 60vw;
   bottom: -15%; right: -10%;
-  background: radial-gradient(circle, rgba(156,207,216,0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--foam) 10%, transparent) 0%, transparent 70%);
   animation-duration: 28s;
   animation-direction: reverse;
 }
@@ -106,18 +98,18 @@ body {
 
 /* ── Glass card ──────────────────────────────────────────────────────────── */
 .glass {
-  background: rgba(31, 29, 46, 0.6);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(144, 140, 170, 0.15);
+  border: 1px solid color-mix(in srgb, var(--subtle) 15%, transparent);
   box-shadow:
-    0 1px 0 0 rgba(224, 222, 244, 0.06) inset,
+    0 1px 0 0 color-mix(in srgb, var(--text) 6%, transparent) inset,
     0 32px 64px -16px rgba(0, 0, 0, 0.45);
 }
 
 /* ── Gradient text ───────────────────────────────────────────────────────── */
 .gradient-text {
-  color: var(--iris); /* LCP fallback — visible before gradient applies */
+  color: var(--iris);
   background: linear-gradient(135deg, var(--iris) 0%, var(--foam) 50%, var(--rose) 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -125,7 +117,6 @@ body {
 }
 
 /* ── Tilt card ───────────────────────────────────────────────────────────── */
-/* Static base styles; dynamic parts (transform, shadows) are set inline via tiltStyle(). */
 .tilt-card {
   will-change: transform;
   transition: transform 0.10s ease, box-shadow 0.10s ease, border-color 0.10s ease;
@@ -168,9 +159,9 @@ body {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(196, 167, 231, 0.11) 40%,
-    rgba(224, 222, 244, 0.15) 50%,
-    rgba(196, 167, 231, 0.11) 60%,
+    color-mix(in srgb, var(--iris) 11%, transparent) 40%,
+    color-mix(in srgb, var(--text) 15%, transparent) 50%,
+    color-mix(in srgb, var(--iris) 11%, transparent) 60%,
     transparent 100%
   );
   animation: shimmer 2s ease-in-out infinite;

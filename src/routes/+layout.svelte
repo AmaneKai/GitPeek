@@ -1,8 +1,12 @@
 <script lang="ts">
   import "../app.css"
   import { Toaster } from "svelte-sonner"
+  import { onMount } from "svelte"
+  import { initTheme } from "$lib/utils/theme"
 
   let { children } = $props()
+
+  onMount(() => initTheme())
 </script>
 
 <Toaster

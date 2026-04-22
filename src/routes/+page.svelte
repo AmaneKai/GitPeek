@@ -7,11 +7,17 @@
   import LanguagePie          from "$lib/features/charts/LanguagePie.svelte"
   import MostStarredRepo      from "$lib/features/repos/MostStarredRepo.svelte"
   import DashboardSkeleton    from "$lib/features/skeleton/DashboardSkeleton.svelte"
+  import ThemeCustomizer      from "$lib/components/ThemeCustomizer.svelte"
 
   const search = useSearch()
 </script>
 
 <div class="aurora-bg" aria-hidden="true"></div>
+
+<!-- Theme picker -->
+<div class="fixed top-4 right-4 z-50">
+  <ThemeCustomizer />
+</div>
 
 <main class="
   min-h-screen flex flex-col items-center
@@ -19,12 +25,7 @@
   gap-8 sm:gap-10 md:gap-12
   touch-pan-y w-full max-w-[100vw] overflow-x-hidden
 ">
-  <!-- Hero -->
   <header class="flex flex-col items-center gap-2 sm:gap-3 fade-in-up text-center px-2">
-    <!--
-      Fix: contrast issue flagged by Lighthouse.
-      Bumped from text-muted (#6e6a86) to text-subtle (#908caa) for the eyebrow label.
-    -->
     <span class="
       text-[11px] sm:text-xs font-mono tracking-[0.2em]
       sm:tracking-[0.25em] uppercase text-subtle"
@@ -40,7 +41,6 @@
     </p>
   </header>
 
-  <!-- Search -->
   <div class="fade-in-up w-full flex justify-center px-2" style="animation-delay:80ms">
     <SearchBar onSearch={search.onSearch} />
   </div>
@@ -72,7 +72,6 @@
   {#if search.noResults}
     <EmptyState username={search.currentUsername} />
   {/if}
-
 </main>
 
 <style>
@@ -85,23 +84,12 @@
     margin: 0 auto;
     touch-action: pan-y pinch-zoom;
   }
-
   @media (min-width: 860px) {
-    .dashboard {
-      grid-template-columns: 1.05fr 1fr;
-      align-items: start;
-    }
+    .dashboard { grid-template-columns: 1.05fr 1fr; align-items: start; }
   }
-
-  .col {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    touch-action: pan-y;
-  }
-
+  .col { display: flex; flex-direction: column; gap: 14px; touch-action: pan-y; }
   @media (max-width: 640px) {
     .dashboard { gap: 12px; }
-    .col       { gap: 12px; }
+    .col { gap: 12px; }
   }
 </style>
