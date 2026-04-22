@@ -1,5 +1,5 @@
 import type { GitHubLanguage } from "$lib/utils/types"
-import { resolveColor } from "$lib/utils/theme"
+import { pickAccentColor } from "$lib/utils/theme"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,13 +55,13 @@ export function segOffset(slice: Slice): { x: number; y: number } {
 export function buildSlices(langs: GitHubLanguage[]): Slice[] {
   if (!langs?.length) return []
   let cursor = -90
-  return langs.map((l) => {
+  return langs.map((l, i) => {
     const span     = (l.percentage / 100) * 360
     const startDeg = cursor + GAP_DEG / 2
     const endDeg   = cursor + span - GAP_DEG / 2
     const midDeg   = cursor + span / 2
     cursor += span
-    return { ...l, color: resolveColor(l.color), startDeg, endDeg, midDeg }
+    return { ...l, color: pickAccentColor(i), startDeg, endDeg, midDeg }
   })
 }
 

@@ -26,29 +26,15 @@ export const COLORS = {
 
 export type ColorToken = keyof typeof COLORS
 
-/**
- * Resolves a language color string that may arrive from the API as either:
- *   - a "rose-pine-*" / "primary" key  →  mapped to COLORS
- *   - a bare hex string                →  returned as-is
- *   - anything unknown                 →  falls back to COLORS.subtle
- */
-const ALIAS: Record<string, ColorToken> = {
-  "rose-pine-foam":   "foam",
-  "rose-pine-gold":   "gold",
-  "rose-pine-iris":   "iris",
-  "rose-pine-rose":   "rose",
-  "rose-pine-love":   "love",
-  "rose-pine-pine":   "pine",
-  "rose-pine-subtle": "subtle",
-  "primary":          "text",
-}
+const ACCENTS: readonly string[] = [
+  COLORS.foam,
+  COLORS.iris,
+  COLORS.gold,
+  COLORS.love,
+  COLORS.rose,
+  COLORS.pine,
+]
 
-export function resolveColor(color: string): string {
-  if (!color) return COLORS.subtle
-
-  const alias = ALIAS[color]
-  if (alias)            return COLORS[alias]
-  if (color.startsWith("#")) return color
-
-  return COLORS.subtle
+export function pickAccentColor(index: number): string {
+  return ACCENTS[index % ACCENTS.length]
 }

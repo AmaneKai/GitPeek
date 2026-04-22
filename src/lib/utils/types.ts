@@ -1,7 +1,7 @@
 export interface GitHubLanguage {
   name: string
   percentage: number
-  color: string
+  color?: string
 }
 
 export interface MostStarredRepo {
