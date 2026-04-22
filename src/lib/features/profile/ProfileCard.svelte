@@ -3,6 +3,8 @@
   import { accountAge, formatNumber } from "$lib/utils/format"
   import { ExternalLink, Calendar, Users } from "lucide-svelte"
   import { Card, CardContent } from "$lib/components/ui/card"
+  import { Badge } from "$lib/components/ui/badge"
+  import { Separator } from "$lib/components/ui/separator"
   import { cn } from "$lib/utils"
 
   let { stats, login }: { stats: GithubStats; login: string } = $props()
@@ -37,13 +39,16 @@
           style="color: var(--text)">
           {displayName}
         </h2>
-        <div class="shrink-0 flex items-center gap-1 font-mono text-[10px] px-2 py-1 rounded-md"
+        <Badge
+          variant="outline"
+          class="shrink-0 flex items-center gap-1 font-mono text-[10px] px-2 py-1"
           style="background:color-mix(in srgb, var(--foam) 8%, transparent);
-                 border:1px solid color-mix(in srgb, var(--foam) 18%, transparent);
-                 color:var(--foam);">
+                 border-color:color-mix(in srgb, var(--foam) 18%, transparent);
+                 color:var(--foam);"
+        >
           <Calendar size={9} />
           {accountAge(stats.accountCreatedAt)}
-        </div>
+        </Badge>
       </div>
 
       {#if stats.bio}
@@ -51,7 +56,9 @@
           style="color: var(--subtle)">{stats.bio}</p>
       {/if}
 
-      <div class="flex items-center justify-between gap-2 mt-1 flex-wrap">
+      <Separator class="my-1" style="background: color-mix(in srgb, var(--highlight-med) 30%, transparent)" />
+
+      <div class="flex items-center justify-between gap-2 flex-wrap">
         <a  
           href="https://github.com/{login}"
           target="_blank"
