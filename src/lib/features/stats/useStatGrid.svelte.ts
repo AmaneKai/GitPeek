@@ -5,35 +5,29 @@ import {
   GitPullRequest, CircleDot, BookOpen, Activity,
 } from "lucide-svelte"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export type StatItem = {
   label:  string
   value:  number
   icon:   unknown
-  accent: string
+  accentVar: string  // CSS var name e.g. "foam"
 }
-
-// ─── Stat definitions ─────────────────────────────────────────────────────────
 
 export function heroItems(s: GithubStats): StatItem[] {
   return [
-    { label: "Contributions", value: s.totalContributions, icon: Activity,  accent: "#9ccfd8" },
-    { label: "Commits",       value: s.totalCommits,       icon: GitCommit, accent: "#c4a7e7" },
+    { label: "Contributions", value: s.totalContributions, icon: Activity,  accentVar: "foam" },
+    { label: "Commits",       value: s.totalCommits,       icon: GitCommit, accentVar: "iris" },
   ]
 }
 
 export function detailItems(s: GithubStats): StatItem[] {
   return [
-    { label: "Stars",     value: s.totalStars,  icon: Star,           accent: "#f6c177" },
-    { label: "Repos",     value: s.totalRepos,  icon: BookOpen,       accent: "#c4a7e7" },
-    { label: "Followers", value: s.followers,   icon: Users,          accent: "#ebbcba" },
-    { label: "PRs",       value: s.totalPrs,    icon: GitPullRequest, accent: "#eb6f92" },
-    { label: "Issues",    value: s.totalIssues, icon: CircleDot,      accent: "#f6c177" },
+    { label: "Stars",     value: s.totalStars,  icon: Star,           accentVar: "gold" },
+    { label: "Repos",     value: s.totalRepos,  icon: BookOpen,       accentVar: "iris" },
+    { label: "Followers", value: s.followers,   icon: Users,          accentVar: "rose" },
+    { label: "PRs",       value: s.totalPrs,    icon: GitPullRequest, accentVar: "love" },
+    { label: "Issues",    value: s.totalIssues, icon: CircleDot,      accentVar: "gold" },
   ]
 }
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 const CARD_COUNT = 8
 
