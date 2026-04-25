@@ -77,29 +77,66 @@ export const PRESET_THEMES: Record<string, ThemeTokens> = {
   },
 }
 
-const STORAGE_KEY = "gitpeek-theme-tokens"
+const STORAGE_KEY = "gitpeek-theme"
+const CUSTOM_TOKENS_KEY = "gitpeek-theme-tokens"
 
 function isBrowser() {
   return typeof window !== "undefined"
 }
 
-export function getTokens(): ThemeTokens {
-  if (!isBrowser()) return PRESET_THEMES["Rosé Pine"]
-  const saved = localStorage.getItem(STORAGE_KEY)
-  return saved ? JSON.parse(saved) : PRESET_THEMES["Rosé Pine"]
+export function applyPreset(name: string) {
+  if (!isBrowser()) return
+  const root = document.documentElement
+  root.setAttribute('data-theme', name)
+  for (const key of Object.keys(TOKEN_LABELS)) {
+    root.style.removeProperty(`--${key}`)
+  }
+  localStorage.setItem(STORAGE_KEY, name)
+  localStorage.removeItem(CUSTOM_TOKENS_KEY)
 }
 
 export function applyTokens(tokens: ThemeTokens) {
   if (!isBrowser()) return
   const root = document.documentElement
+  root.setAttribute('data-theme', 'custom')
   for (const [key, val] of Object.entries(tokens)) {
     root.style.setProperty(`--${key}`, val)
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+  localStorage.setItem(STORAGE_KEY, 'custom')
+  localStorage.setItem(CUSTOM_TOKENS_KEY, JSON.stringify(tokens))
+}
+
+export function getTokens(): ThemeTokens {
+  if (!isBrowser()) return PRESET_THEMES["Rosé Pine"]
+  const name = localStorage.getItem(STORAGE_KEY)
+  if (name === 'custom') {
+    const saved = localStorage.getItem(CUSTOM_TOKENS_KEY)
+    return saved ? JSON.parse(saved) : PRESET_THEMES["Rosé Pine"]
+  }
+  if (name && PRESET_THEMES[name]) return PRESET_THEMES[name]
+  return PRESET_THEMES["Rosé Pine"]
+}
+
+export function getSavedPresetName(): string | null {
+  if (!isBrowser()) return null
+  const name = localStorage.getItem(STORAGE_KEY)
+  if (!name || name === 'custom') return null
+  return PRESET_THEMES[name] ? name : null
 }
 
 export function initTheme() {
-  applyTokens(getTokens())
+  if (!isBrowser()) return
+  const name = localStorage.getItem(STORAGE_KEY)
+  if (!name) {
+    applyPreset("Rosé Pine")
+    return
+  }
+  if (name === 'custom') {
+    const saved = localStorage.getItem(CUSTOM_TOKENS_KEY)
+    if (saved) applyTokens(JSON.parse(saved))
+  } else if (PRESET_THEMES[name]) {
+    applyPreset(name)
+  }
 }
 
 export const COLORS = PRESET_THEMES["Rosé Pine"] as Record<string, string>

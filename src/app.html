@@ -37,6 +37,20 @@
 
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>GitPeek — Peek at any GitHub profile, beautifully</title>
+		<script>
+			try {
+				var n = localStorage.getItem('gitpeek-theme');
+				if (n === 'custom') {
+					var raw = localStorage.getItem('gitpeek-theme-tokens');
+					if (raw) {
+						var tok = JSON.parse(raw), r = document.documentElement;
+						for (var k in tok) r.style.setProperty('--' + k, tok[k]);
+					}
+				} else if (n) {
+					document.documentElement.setAttribute('data-theme', n);
+				}
+			} catch (e) {}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

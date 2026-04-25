@@ -5,6 +5,8 @@
     PRESET_THEMES,
     getTokens,
     applyTokens,
+    applyPreset as applyPresetTheme,
+    getSavedPresetName,
     parseThemeFromCSS,
     type ThemeTokens,
   } from "$lib/utils/theme"
@@ -19,6 +21,7 @@
 
   onMount(async () => {
     tokens = { ...getTokens() }
+    activePreset = getSavedPresetName() ?? "Rosé Pine"
     await import("vanilla-colorful/hex-color-picker.js")
   })
 
@@ -31,7 +34,7 @@
   function applyPreset(name: string) {
     activePreset = name
     tokens = { ...PRESET_THEMES[name] }
-    applyTokens(tokens)
+    applyPresetTheme(name)
   }
 
   function reset() {
@@ -49,7 +52,7 @@
         alert("No theme tokens found in CSS file.")
         return
       }
-      tokens = { ...tokens, ...parsed }
+      tokens = { ...PRESET_THEMES["Rosé Pine"], ...parsed } as ThemeTokens
       activePreset = null
       applyTokens(tokens)
     }
