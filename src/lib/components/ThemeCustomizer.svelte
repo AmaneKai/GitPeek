@@ -107,7 +107,10 @@
   ></div>
 
   <!-- Panel -->
-  <div class="fixed right-4 top-16 z-50 w-[320px] max-h-[80vh] glass rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+  <div
+    class="fixed left-2 right-2 top-16 z-50 sm:left-auto sm:right-4 sm:w-[320px] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col"
+    style="background: var(--overlay); border: 1px solid color-mix(in srgb, var(--subtle) 20%, transparent); box-shadow: 0 32px 64px -16px rgba(0,0,0,0.6);"
+  >
 
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3"
