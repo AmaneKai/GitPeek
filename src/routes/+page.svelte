@@ -8,8 +8,11 @@
   import MostStarredRepo      from "$lib/features/repos/MostStarredRepo.svelte"
   import DashboardSkeleton    from "$lib/features/skeleton/DashboardSkeleton.svelte"
   import ThemeCustomizer      from "$lib/components/ThemeCustomizer.svelte"
+  import WallpaperExporter    from "$lib/features/exporter/WallpaperExporter.svelte"
+  import { Download }         from "lucide-svelte"
 
   const search = useSearch()
+  let showExporter = $state(false)
 </script>
 
 <div class="aurora-bg" aria-hidden="true"></div>
@@ -50,6 +53,18 @@
   {/if}
 
   {#if search.stats}
+    <div class="dashboard-bar fade-in-up" style="animation-delay:60ms">
+      <button
+        onclick={() => showExporter = true}
+        class="flex items-center gap-2 px-3 py-2 rounded-xl glass font-mono text-xs tracking-wide uppercase transition-all duration-200 border"
+        style="color: var(--subtle); border-color: color-mix(in srgb, var(--highlight-med) 50%, transparent);"
+        aria-label="Export wallpaper"
+      >
+        <Download size={13} />
+        <span>Wallpaper</span>
+      </button>
+    </div>
+
     <div class="dashboard">
       <div class="col fade-in-up">
         <ProfileCard stats={search.stats} login={search.currentUsername} />
@@ -74,7 +89,22 @@
   {/if}
 </main>
 
+{#if showExporter && search.stats}
+  <WallpaperExporter
+    stats={search.stats}
+    login={search.currentUsername}
+    onClose={() => showExporter = false}
+  />
+{/if}
+
 <style>
+  .dashboard-bar {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
   .dashboard {
     display: grid;
     grid-template-columns: 1fr;

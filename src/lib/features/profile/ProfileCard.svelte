@@ -25,6 +25,7 @@
              box-shadow:0 8px 24px -6px rgba(0,0,0,0.5), 0 0 0 4px color-mix(in srgb, var(--iris) 5%, transparent);">
       <img
         src={stats.avatarUrl}
+        crossorigin="anonymous"
         alt="{displayName}'s GitHub avatar"
         width="80" height="80"
         class="w-full h-full object-cover"
