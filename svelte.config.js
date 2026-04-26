@@ -3,14 +3,28 @@ import adapter from '@sveltejs/adapter-auto';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	compilerOptions: {
-		// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 		runes: ({ filename }) => (filename.split(/[/\\]/).includes('node_modules') ? undefined : true)
 	},
 	kit: {
-		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
-		adapter: adapter()
+		adapter: adapter(),
+		csp: {
+			mode: 'auto',
+			directives: {
+				'default-src': ['self'],
+				'connect-src': [
+					'self', 
+					'https://ghfetch.carlosranara.workers.dev', 
+					'https://avatars.githubusercontent.com',
+					'https://fonts.googleapis.com',
+					'https://fonts.gstatic.com'
+				],
+				'img-src': ['self', 'data:', 'https://avatars.githubusercontent.com'],
+				'font-src': ['self', 'https://fonts.gstatic.com'],
+				'style-src': ['self', 'unsafe-inline', 'https://fonts.googleapis.com'],
+				'script-src': ['self', 'unsafe-inline'],
+				'worker-src': ['self', 'blob:']
+			}
+		}
 	}
 };
 
