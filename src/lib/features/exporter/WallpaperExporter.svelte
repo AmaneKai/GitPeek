@@ -22,6 +22,21 @@
   let generating = $state(false)
   let exportNode = $state<HTMLElement | null>(null)
   let isMobile   = $state(false)
+  let avatarSrc  = $state(stats.avatarUrl)
+
+  // Pre-fetch avatar as data URL so html-to-image doesn't hit CORS when exporting
+  $effect(() => {
+    fetch(stats.avatarUrl)
+      .then(r => r.blob())
+      .then(blob => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      }))
+      .then(url => { avatarSrc = url })
+      .catch(() => {})
+  })
 
   $effect(() => {
     const check = () => { isMobile = window.innerWidth < 640 }
@@ -169,7 +184,7 @@
           <div style="transform: scale({scale}); transform-origin: top left;
                       width: {selected.w}px; height: {selected.h}px;">
             <div bind:this={exportNode} style="width: {selected.w}px; height: {selected.h}px;">
-              <WallpaperCanvas {stats} {login} width={selected.w} height={selected.h} />
+              <WallpaperCanvas {stats} {login} {avatarSrc} width={selected.w} height={selected.h} />
             </div>
           </div>
         </div>
@@ -318,7 +333,7 @@
             <div style="transform: scale({scale}); transform-origin: top left;
                         width: {selected.w}px; height: {selected.h}px;">
               <div bind:this={exportNode} style="width: {selected.w}px; height: {selected.h}px;">
-                <WallpaperCanvas {stats} {login} width={selected.w} height={selected.h} />
+                <WallpaperCanvas {stats} {login} {avatarSrc} width={selected.w} height={selected.h} />
               </div>
             </div>
           </div>

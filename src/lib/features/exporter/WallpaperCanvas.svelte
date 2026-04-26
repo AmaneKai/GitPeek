@@ -4,13 +4,15 @@
   import { buildSlices, arcPath } from "$lib/features/charts/useLanguagePie.svelte"
   import { Users, Calendar } from "lucide-svelte"
 
-  let { stats, login, width, height }: {
+  let { stats, login, width, height, avatarSrc }: {
     stats: GithubStats
     login: string
     width: number
     height: number
+    avatarSrc?: string
   } = $props()
 
+  let imgSrc = $derived(avatarSrc ?? stats.avatarUrl)
   let displayName = $derived(stats.displayName || login)
   let isLandscape = $derived(width >= height)
   let u           = $derived(width / 100)
@@ -68,7 +70,7 @@
       ">
         <!-- Avatar -->
         <img
-          src={stats.avatarUrl}
+          src={imgSrc}
           crossorigin="anonymous"
           alt=""
           style="
@@ -311,7 +313,7 @@
         box-shadow: 0 {u * 1}px {u * 4}px rgba(0,0,0,0.4);
       ">
         <img
-          src={stats.avatarUrl}
+          src={imgSrc}
           crossorigin="anonymous"
           alt=""
           style="
