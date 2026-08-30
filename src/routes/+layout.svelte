@@ -3,7 +3,7 @@
   import { Toaster } from 'svelte-sonner'
   import { onMount } from 'svelte'
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
-  import { initTheme } from '$lib/theme/theme-manager'
+  import { initTheme } from '$lib/entities/theme/model/theme-manager'
 
   let { children } = $props()
 

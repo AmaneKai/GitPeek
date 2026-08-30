@@ -28,7 +28,7 @@ export default defineConfig(
       '.svelte-kit/**',
       '*.config.js',
       '*.config.mjs',
-      'src/lib/components/ui/**', // Ignore standard shadcn UI files
+      'src/lib/shared/ui/**', // Ignore standard shadcn UI files
     ],
   },
   {
@@ -45,6 +45,11 @@ export default defineConfig(
         extraFileExtensions: ['.svelte'],
         parser: ts.parser,
         svelteConfig,
+      },
+    },
+    settings: {
+      'import/resolver': {
+        typescript: { project: './tsconfig.json' },
       },
     },
     rules: {
@@ -133,7 +138,7 @@ export default defineConfig(
       ],
       'no-console': 'warn',
 
-      /* --- 5. Architecture (errors — enforced going forward) --- */
+      /* --- 5. Architecture: Feature-Sliced Design layer boundaries (errors) --- */
       'import/no-restricted-paths': [
         'error',
         {
@@ -142,6 +147,51 @@ export default defineConfig(
               target: './src',
               from: './src/**/helpers.ts',
               message: 'Standard 3.6: Do not use generic helper files.',
+            },
+            {
+              target: './src/lib/shared',
+              from: [
+                './src/lib/entities',
+                './src/lib/features',
+                './src/lib/widgets',
+                './src/lib/server',
+              ],
+              message: 'shared/ is foundational and cannot import from any other layer.',
+            },
+            {
+              target: './src/lib/entities',
+              from: ['./src/lib/features', './src/lib/widgets', './src/routes'],
+              message: 'entities/ may only depend on shared/.',
+            },
+            {
+              target: './src/lib/features',
+              from: ['./src/lib/widgets', './src/routes'],
+              message: 'features/ may depend on entities/ and shared/, not widgets/ or routes/.',
+            },
+            {
+              target: './src/lib/features/search-profile',
+              from: './src/lib/features/customize-theme',
+              message: 'A feature never imports another feature.',
+            },
+            {
+              target: './src/lib/features/customize-theme',
+              from: './src/lib/features/search-profile',
+              message: 'A feature never imports another feature.',
+            },
+            {
+              target: './src/lib/widgets',
+              from: './src/routes',
+              message: 'widgets/ cannot import from routes/.',
+            },
+            {
+              target: [
+                './src/lib/shared',
+                './src/lib/entities',
+                './src/lib/features',
+                './src/lib/widgets',
+              ],
+              from: './src/lib/server',
+              message: 'Server-only code is importable from routes/ and src/lib/server/ only.',
             },
           ],
         },

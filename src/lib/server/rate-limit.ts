@@ -1,5 +1,5 @@
 import { Ratelimit } from '@upstash/ratelimit'
-import { withTimeout } from './promise-timeout'
+import { withTimeout } from '$lib/shared/lib/promise-timeout'
 import { getRedis } from './redis'
 
 export interface RateLimitResult {

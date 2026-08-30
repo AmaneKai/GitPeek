@@ -1,29 +1,24 @@
 import { render } from 'svelte/server'
 import { dev } from '$app/environment'
 import { Resvg } from '@resvg/resvg-js'
-import { createGithubClient } from '$lib/github/api/github-client'
-import { GHFETCH_STATS_URL } from '$lib/github/api/config'
-import { PRESET_THEMES } from '$lib/theme/theme-manager'
-import { fetchAsDataUri } from '$lib/readme/remote-image'
-import { getWallpaperFontFiles } from '$lib/readme/server-assets'
-import WallpaperCard from '$lib/wallpaper/WallpaperCard.svelte'
-import { buildWallpaperStyles } from '$lib/wallpaper/wallpaper-font-styles'
-import { getWallpaperFormat } from '$lib/wallpaper/wallpaper-formats'
+import { createGithubClient } from '$lib/entities/github-stats/api/github-client'
+import { GHFETCH_STATS_URL } from '$lib/entities/github-stats/api/config'
+import { fetchAsDataUri } from '$lib/server/remote-image'
+import { getWallpaperFontFiles } from '$lib/server/font-assets'
+import WallpaperCard from '$lib/widgets/wallpaper/ui/WallpaperCard.svelte'
+import { buildWallpaperStyles } from '$lib/widgets/wallpaper/lib/wallpaper-font-styles'
+import { getWallpaperFormat } from '$lib/widgets/wallpaper/lib/wallpaper-formats'
+import { resolveWallpaperTheme } from '$lib/widgets/wallpaper/lib/wallpaper-theme-param'
 import { checkRateLimit } from '$lib/server/rate-limit'
 import { getHotStats, setHotStats } from '$lib/server/hot-stats-cache'
 import type { RequestHandler } from './$types'
 
-const PREVIEW_AVATAR_SIZE_PIXELS = 160
+const COLD_RENDER_TIMEOUT_SECONDS = 60
+const STATS_REQUEST_TIMEOUT_MILLISECONDS = 8000
+const HOUR_IN_SECONDS = 3600
+const DAY_IN_SECONDS = 86_400
 
-function withAvatarSizeHint(avatarUrl: string, sizePixels: number): string {
-  try {
-    const url = new URL(avatarUrl)
-    url.searchParams.set('size', String(sizePixels))
-    return url.toString()
-  } catch {
-    return avatarUrl
-  }
-}
+export const config = { maxDuration: COLD_RENDER_TIMEOUT_SECONDS }
 
 export const GET: RequestHandler = async (event) => {
   const username = event.url.searchParams.get('username')?.trim()
@@ -33,13 +28,6 @@ export const GET: RequestHandler = async (event) => {
   const format = getWallpaperFormat(event.url.searchParams.get('format'))
 
   if (!format) return new Response('Invalid format', { status: 400 })
-
-  const requestedPreviewWidth = Number(event.url.searchParams.get('previewWidth'))
-  const rasterWidth =
-    Number.isFinite(requestedPreviewWidth) && requestedPreviewWidth > 0
-      ? Math.min(requestedPreviewWidth, format.width)
-      : format.width
-  const isPreview = rasterWidth !== format.width
 
   const [rateLimit, hotStats] = await Promise.all([
     checkRateLimit(event.getClientAddress()),
@@ -54,15 +42,17 @@ export const GET: RequestHandler = async (event) => {
     })
   }
 
-  const requestedTheme = event.url.searchParams.get('theme') || 'Rosé Pine'
-  const theme = PRESET_THEMES[requestedTheme] || PRESET_THEMES['Rosé Pine']
+  const theme = resolveWallpaperTheme(
+    event.url.searchParams.get('theme'),
+    event.url.searchParams.get('t'),
+  )
 
   let statistics = hotStats
 
   if (!statistics) {
     const client = createGithubClient({
       apiUrl: GHFETCH_STATS_URL,
-      requestTimeoutMilliseconds: 8000,
+      requestTimeoutMilliseconds: STATS_REQUEST_TIMEOUT_MILLISECONDS,
     })
 
     const result = await client.fetchStats(username)
@@ -80,13 +70,9 @@ export const GET: RequestHandler = async (event) => {
     await setHotStats(username, statistics)
   }
 
-  const avatarUrl = isPreview
-    ? withAvatarSizeHint(statistics.avatarUrl, PREVIEW_AVATAR_SIZE_PIXELS)
-    : statistics.avatarUrl
-
   const [fontFiles, avatarDataUri] = await Promise.all([
     getWallpaperFontFiles(),
-    fetchAsDataUri(avatarUrl),
+    fetchAsDataUri(statistics.avatarUrl),
   ])
 
   const { body } = render(WallpaperCard, {
@@ -103,7 +89,7 @@ export const GET: RequestHandler = async (event) => {
   const svg = body.replace('<defs>', `<defs><style>${fontStyles}</style>`)
 
   const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: rasterWidth },
+    fitTo: { mode: 'width', value: format.width },
     font: {
       fontFiles: [
         fontFiles.mono,
@@ -122,10 +108,10 @@ export const GET: RequestHandler = async (event) => {
   return new Response(new Uint8Array(pngBuffer), {
     headers: {
       'Content-Type': 'image/png',
-      'Content-Disposition': isPreview
-        ? 'inline'
-        : `attachment; filename="gitpeak-${username}-${format.id}.png"`,
-      'Cache-Control': dev ? 'no-store' : 'public, max-age=3600, stale-while-revalidate=86400',
+      'Content-Disposition': `attachment; filename="gitpeak-${username}-${format.id}.png"`,
+      'Cache-Control': dev
+        ? 'no-store'
+        : `public, max-age=${HOUR_IN_SECONDS}, stale-while-revalidate=${DAY_IN_SECONDS}`,
     },
   })
 }

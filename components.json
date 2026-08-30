@@ -5,10 +5,10 @@
     "baseColor": "neutral"
   },
   "aliases": {
-    "components": "$lib/components",
-    "utils": "$lib/utils",
-    "ui": "$lib/components/ui",
-    "hooks": "$lib/hooks",
+    "components": "$lib/shared",
+    "utils": "$lib/shared/lib/class-merger",
+    "ui": "$lib/shared/ui",
+    "hooks": "$lib/shared/hooks",
     "lib": "$lib"
   },
   "typescript": true,

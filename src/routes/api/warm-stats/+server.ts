@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { githubStatsSchema } from '$lib/github/models/github-stats'
+import { githubStatsSchema } from '$lib/entities/github-stats/model/github-stats'
 import { setHotStats } from '$lib/server/hot-stats-cache'
 import { checkRateLimit } from '$lib/server/rate-limit'
 import type { RequestHandler } from './$types'

@@ -1,5 +1,5 @@
-import { githubStatsSchema, type GithubStats } from '$lib/github/models/github-stats'
-import { withTimeout } from './promise-timeout'
+import { githubStatsSchema, type GithubStats } from '$lib/entities/github-stats/model/github-stats'
+import { withTimeout } from '$lib/shared/lib/promise-timeout'
 import { getRedis } from './redis'
 
 const CACHE_VERSION = 1

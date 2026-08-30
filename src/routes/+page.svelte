@@ -1,13 +1,13 @@
 <script lang="ts">
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
-  import { useSearch } from '$lib/github/ui/search/useSearch.svelte'
-  import SearchBar from '$lib/github/ui/search/SearchBar.svelte'
-  import EmptyState from '$lib/github/ui/search/EmptyState.svelte'
-  import DashboardWidget from '$lib/github/ui/dashboard/DashboardWidget.svelte'
-  import DashboardSkeleton from '$lib/ui/components/DashboardSkeleton.svelte'
-  import ThemeCustomizer from '$lib/theme/ThemeCustomizer.svelte'
-  import MobileThemeDial from '$lib/theme/MobileThemeDial.svelte'
+  import { useSearch } from '$lib/features/search-profile/model/useSearch.svelte'
+  import SearchBar from '$lib/features/search-profile/ui/SearchBar.svelte'
+  import EmptyState from '$lib/features/search-profile/ui/EmptyState.svelte'
+  import DashboardWidget from '$lib/widgets/profile-dashboard/ui/DashboardWidget.svelte'
+  import DashboardSkeleton from '$lib/shared/ui/DashboardSkeleton.svelte'
+  import ThemeCustomizer from '$lib/features/customize-theme/ui/ThemeCustomizer.svelte'
+  import MobileThemeDial from '$lib/features/customize-theme/ui/MobileThemeDial.svelte'
 
   const searchManager = useSearch()
 

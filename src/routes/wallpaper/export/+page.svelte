@@ -1,83 +1,89 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import { page } from '$app/state'
   import { ArrowLeft, Download, LoaderCircle } from 'lucide-svelte'
-  import { WALLPAPER_FORMATS, type WallpaperFormat } from '$lib/wallpaper/wallpaper-formats'
+  import { createQuery } from '@tanstack/svelte-query'
+  import { createGithubClient } from '$lib/entities/github-stats/api/github-client'
+  import { GHFETCH_STATS_URL } from '$lib/entities/github-stats/api/config'
+  import { warmServerStats } from '$lib/entities/github-stats/api/warm-server-stats'
   import {
-    buildWallpaperPreviewUrl,
-    buildWallpaperUrl,
-    computeRasterPreviewWidth,
-    estimatePreviewContainerSize,
-  } from '$lib/wallpaper/wallpaper-preview-url'
-  import { getActivePresetName } from '$lib/theme/theme-state.svelte'
-  import ThemeControls from '$lib/theme/ThemeControls.svelte'
+    WALLPAPER_FORMATS,
+    type WallpaperFormat,
+  } from '$lib/widgets/wallpaper/lib/wallpaper-formats'
+  import { buildWallpaperUrl } from '$lib/widgets/wallpaper/lib/wallpaper-url'
+  import { downloadWallpaper } from '$lib/widgets/wallpaper/lib/download-wallpaper'
+  import { packThemeTokens } from '$lib/widgets/wallpaper/lib/wallpaper-theme-param'
+  import WallpaperPreview from '$lib/widgets/wallpaper/ui/WallpaperPreview.svelte'
+  import { getTokens } from '$lib/entities/theme/model/theme-manager'
+  import {
+    getActivePresetName,
+    getActiveThemeTokens,
+    setActiveThemeTokens,
+  } from '$lib/entities/theme/model/theme-state.svelte'
+  import ThemeControls from '$lib/features/customize-theme/ui/ThemeControls.svelte'
   import { toast } from 'svelte-sonner'
 
-  const PREVIEW_PADDING_PIXELS = 24
+  const STATS_REQUEST_TIMEOUT_MILLISECONDS = 8000
+  const STATS_STALE_TIME_MILLISECONDS = 60 * 1000
+  const DOWNLOAD_PREWARM_DEBOUNCE_MILLISECONDS = 600
 
-  const login = $derived(page.url.searchParams.get('username') ?? '')
-  const themeName = $derived(getActivePresetName() ?? 'Rosé Pine')
+  const login = $derived(page.url.searchParams.get('username')?.trim() ?? '')
 
-  const initialContainerSize =
-    typeof window === 'undefined'
-      ? { width: 700, height: 500 }
-      : estimatePreviewContainerSize(window.innerWidth, window.innerHeight)
+  const statsClient = createGithubClient({
+    apiUrl: GHFETCH_STATS_URL,
+    requestTimeoutMilliseconds: STATS_REQUEST_TIMEOUT_MILLISECONDS,
+  })
+
+  const statsQuery = createQuery(() => ({
+    queryKey: ['github-stats', login.toLowerCase()],
+    queryFn: async () => {
+      const result = await statsClient.fetchStats(login)
+      if (!result.ok) throw new Error(result.error.message)
+
+      warmServerStats(login, result.value)
+      return result.value
+    },
+    enabled: login.length > 0,
+    staleTime: STATS_STALE_TIME_MILLISECONDS,
+  }))
 
   let selectedFormat = $state<WallpaperFormat>(WALLPAPER_FORMATS[0])
   let isGenerating = $state(false)
-  let isPreviewLoading = $state(true)
-  let devicePixelRatioValue = $state(1)
-  let previewWidthPixels = $state(initialContainerSize.width)
-  let previewHeightPixels = $state(initialContainerSize.height)
 
-  // Rendered server-side (svelte/server + resvg) exactly like /og and /api/readme — the preview
-  // and the download are the same image, so they can never drift apart.
-  const wallpaperUrl = $derived(buildWallpaperUrl(login, selectedFormat, themeName))
+  const theme = $derived(getActiveThemeTokens())
+  const presetName = $derived(getActivePresetName())
+  const packedCustomTokens = $derived(presetName ? undefined : packThemeTokens(theme))
 
-  const rasterPreviewWidth = $derived(
-    computeRasterPreviewWidth(
-      selectedFormat,
-      previewWidthPixels,
-      previewHeightPixels,
-      PREVIEW_PADDING_PIXELS,
-      devicePixelRatioValue,
-    ),
+  const wallpaperUrl = $derived(
+    buildWallpaperUrl(login, selectedFormat, presetName, packedCustomTokens),
   )
+  const downloadFilename = $derived(`gitpeak-${login}-${selectedFormat.id}.png`)
 
-  const previewImageUrl = $derived(
-    buildWallpaperPreviewUrl(login, selectedFormat, themeName, rasterPreviewWidth),
-  )
-
-  $effect(() => {
-    devicePixelRatioValue = window.devicePixelRatio || 1
+  onMount(() => {
+    setActiveThemeTokens(getTokens())
   })
 
   $effect(() => {
-    void previewImageUrl
-    isPreviewLoading = true
+    const urlToPrewarm = wallpaperUrl
+    if (!statsQuery.data || !login) return
+
+    const timer = setTimeout(() => {
+      fetch(urlToPrewarm).catch(() => {})
+    }, DOWNLOAD_PREWARM_DEBOUNCE_MILLISECONDS)
+
+    return () => clearTimeout(timer)
   })
 
-  function handlePreviewLoaded(): void {
-    isPreviewLoading = false
-  }
-
-  function handlePreviewError(): void {
-    isPreviewLoading = false
-    toast.error('Preview failed to load. Check console for details.')
-  }
-
-  function generateWallpaper(): void {
+  async function generateWallpaper(): Promise<void> {
     if (isGenerating) return
     isGenerating = true
 
     try {
-      const a = document.createElement('a')
-      a.href = wallpaperUrl
-      a.download = `gitpeak-${login}-${selectedFormat.id}.png`
-      a.click()
+      await downloadWallpaper(wallpaperUrl, downloadFilename)
       toast.success('Wallpaper saved!')
     } catch (error) {
       console.error('Export failed:', error)
-      toast.error('Export failed. Check console for details.')
+      toast.error('Export failed — give it a moment and try again.')
     } finally {
       isGenerating = false
     }
@@ -108,31 +114,30 @@
 
     <div class="page-body">
       <div class="preview-column">
-        <div
-          class="preview-area"
-          bind:clientWidth={previewWidthPixels}
-          bind:clientHeight={previewHeightPixels}
-        >
+        <div class="preview-area">
           <div
             class="preview-frame"
             style="aspect-ratio: {selectedFormat.width} / {selectedFormat.height};"
           >
-            {#if isPreviewLoading}
-              <div class="preview-loading">
+            {#if statsQuery.data}
+              <WallpaperPreview
+                statistics={statsQuery.data}
+                username={login}
+                {theme}
+                avatarUrl={statsQuery.data.avatarUrl}
+                width={selectedFormat.width}
+                height={selectedFormat.height}
+              />
+            {:else if statsQuery.isError}
+              <div class="preview-status">
+                Couldn’t load {login}’s stats.
+              </div>
+            {:else}
+              <div class="preview-status">
                 <LoaderCircle size={20} class="animate-spin" />
-                Generating preview…
+                Loading {login}’s stats…
               </div>
             {/if}
-            {#key previewImageUrl}
-              <img
-                class="preview-image"
-                class:preview-image--loading={isPreviewLoading}
-                src={previewImageUrl}
-                alt="{login}'s wallpaper preview"
-                onload={handlePreviewLoaded}
-                onerror={handlePreviewError}
-              />
-            {/key}
           </div>
         </div>
       </div>
@@ -160,7 +165,7 @@
     <footer class="page-footer">
       <span class="dim-label">{selectedFormat.width} × {selectedFormat.height}</span>
       <button
-        disabled={isGenerating}
+        disabled={isGenerating || !statsQuery.data}
         onclick={generateWallpaper}
         class="download-button"
         class:download-button--busy={isGenerating}
@@ -310,22 +315,9 @@
       0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
-  .preview-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity 0.15s ease;
-  }
-
-  .preview-image--loading {
-    opacity: 0;
-  }
-
-  .preview-loading {
+  .preview-status {
     position: absolute;
     inset: 0;
-    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
